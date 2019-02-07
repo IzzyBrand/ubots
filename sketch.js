@@ -34,7 +34,9 @@ function setup() {
                   intensity: Math.random() * 20});
   }
   for (var i=0; i < 10; i++) {
-    bots.push(buildRandomBot());
+    bots.push(buildRandomBot(Math.random() * window.innerWidth/2 + window.innerWidth/4,
+                             Math.random() * window.innerHeight/2 + window.innerHeight/4,
+                             Math.random() * Math.PI * 2));
   }
 }
 
@@ -148,12 +150,6 @@ function drawBot(bot) {
     line(s.x, s.y, m.x, m.y);
   }
 
-  for (var i = 0; i < bot.sensors.length; i++) {
-    var s = bot.sensors[i];
-    stroke(colors[s.type]);
-    ellipse(s.x, s.y, s.scale, s.scale);
-  }
-
   stroke(botColor);
   for (var i = 0; i < bot.motors.length; i++) {
     var m = bot.motors[i];
@@ -166,6 +162,14 @@ function drawBot(bot) {
     rotate(-m.theta);
     translate(-m.x, -m.y);
   }
+
+  for (var i = 0; i < bot.sensors.length; i++) {
+    var s = bot.sensors[i];
+    stroke(colors[s.type]);
+    ellipse(s.x, s.y, s.scale, s.scale);
+  }
+
+
   rotate(-bot.pos.theta);
   translate(-bot.pos.x, -bot.pos.y);
 }
@@ -189,10 +193,8 @@ function buildBaseBot(x=window.innerWidth/2, y=window.innerHeight/2, theta=0) {
   return bot;
 }
 
-function buildSimpleBot() {
-  var bot = buildBaseBot(Math.random() * window.innerWidth/2 + window.innerWidth/4,
-                         Math.random() * window.innerHeight/2 + window.innerHeight/4,
-                         Math.random() * Math.PI * 2);
+function buildSimpleBot(x=window.innerWidth/2, y=window.innerHeight/2, theta=0) {
+  var bot = buildBaseBot(x, y, theta);
 
   bot.sensors.push({x: bot.width/2, y: bot.height/2, type:0, scale: bot.width/3});
   bot.sensors.push({x: -bot.width/2, y: bot.height/2, type:0, scale: bot.width/3});
@@ -209,10 +211,8 @@ function buildSimpleBot() {
   return bot;
 }
 
-function buildRandomBot() {
-  var bot = buildBaseBot(Math.random() * window.innerWidth/2 + window.innerWidth/4,
-                         Math.random() * window.innerHeight/2 + window.innerHeight/4,
-                         Math.random() * Math.PI * 2);
+function buildRandomBot(x=window.innerWidth/2, y=window.innerHeight/2, theta=0) {
+  var bot = buildBaseBot(x, y, theta);
 
   bot.motors.push({x: bot.width/2, y: -bot.height/2, theta: 0, scale: bot.width/4, activation: 0});
   bot.motors.push({x: -bot.width/2, y: -bot.height/2, theta: 0, scale: bot.width/4, activation: 0});
@@ -228,5 +228,17 @@ function buildRandomBot() {
   }
 
   return bot;
+}
+
+function mouseClicked() {
+  for (var i = 0; i < bots.length; i++) {
+    var bot = bots[i];
+    var dist = Math.sqrt(Math.pow(bot.pos.x - mouseX, 2) + Math.pow(bot.pos.y - mouseY, 2));
+    if (dist < bot.width) {
+      bots.splice(i, 1);
+      return
+    }
+  }
+  bots.push(buildRandomBot(mouseX, mouseY, Math.random() * Math.PI * 2));
 }
 
