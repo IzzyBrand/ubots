@@ -28,13 +28,13 @@ function setup() {
                   y: Math.random() * window.innerHeight,
                   type: 1,
                   intensity: Math.random() * 20});
-    // sources.push({x: Math.random() * window.innerWidth,
-    //               y: Math.random() * window.innerHeight,
-    //               type: 2,
-    //               intensity: Math.random() * 20});
+    sources.push({x: Math.random() * window.innerWidth,
+                  y: Math.random() * window.innerHeight,
+                  type: 2,
+                  intensity: Math.random() * 20});
   }
-  for (var i=0; i < 5; i++) {
-    bots.push(buildBasicBot());
+  for (var i=0; i < 10; i++) {
+    bots.push(buildRandomBot());
   }
 }
 
@@ -178,16 +178,21 @@ function linear(coeff) {
 }
 
 
-function buildBasicBot() {
+function buildBaseBot(x=window.innerWidth/2, y=window.innerHeight/2, theta=0) {
   var bot = {width: Math.min(window.innerWidth, window.innerHeight) / 15,
              height: Math.min(window.innerWidth, window.innerHeight) / 10,
-             pos: {x: Math.random() * window.innerWidth/2 + window.innerWidth/4,
-                   y: Math.random() * window.innerHeight/2 + window.innerHeight/4,
-                   theta: Math.random() * Math.PI * 2},
+             pos: {x: x, y: y, theta: theta},
              vel: {x: 0, y: 0, theta: 0},
              sensors: [],
              motors: [],
              connections: []};
+  return bot;
+}
+
+function buildSimpleBot() {
+  var bot = buildBaseBot(Math.random() * window.innerWidth/2 + window.innerWidth/4,
+                         Math.random() * window.innerHeight/2 + window.innerHeight/4,
+                         Math.random() * Math.PI * 2);
 
   bot.sensors.push({x: bot.width/2, y: bot.height/2, type:0, scale: bot.width/3});
   bot.sensors.push({x: -bot.width/2, y: bot.height/2, type:0, scale: bot.width/3});
@@ -201,6 +206,27 @@ function buildBasicBot() {
   bot.connections.push({s: 1, m: 0, f: linear(1)});
   bot.connections.push({s: 2, m: 0, f: linear(0.5)});
   bot.connections.push({s: 3, m: 1, f: linear(0.5)});
+  return bot;
+}
+
+function buildRandomBot() {
+  var bot = buildBaseBot(Math.random() * window.innerWidth/2 + window.innerWidth/4,
+                         Math.random() * window.innerHeight/2 + window.innerHeight/4,
+                         Math.random() * Math.PI * 2);
+
+  bot.motors.push({x: bot.width/2, y: -bot.height/2, theta: 0, scale: bot.width/4, activation: 0});
+  bot.motors.push({x: -bot.width/2, y: -bot.height/2, theta: 0, scale: bot.width/4, activation: 0});
+
+  var numSensors = Math.random() * 6;
+  for (var i = 0; i< numSensors; i++) {
+    bot.sensors.push({x: (Math.random() - 0.5) * bot.width,
+                      y: (Math.random() - 0.5) * bot.height,
+                      type: Math.floor(Math.random() * 2.99),
+                      scale: bot.width/4});
+
+    bot.connections.push({s: i, m: Math.round(Math.random()), f:linear(Math.random() * 2 - 1)})
+  }
+
   return bot;
 }
 
